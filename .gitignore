@@ -1,0 +1,27 @@
+/tmp
+/build
+/bin
+
+/.env
+
+*.db
+.bin
+
+# Logs
+logs
+*.log
+
+# Coverage
+coverage.out
+coverage.html
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
