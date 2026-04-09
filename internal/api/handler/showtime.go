@@ -114,6 +114,27 @@ func (h *ShowtimeHandler) Get(c *gin.Context) {
 	c.JSON(http.StatusOK, response.OK("Showtime retrieved", resp))
 }
 
+// GetSeatMap handles GET /api/showtimes/:id/seats (public)
+func (h *ShowtimeHandler) GetSeatMap(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response.Err("Invalid showtime ID"))
+		return
+	}
+
+	seatMap, err := h.showtimeService.GetSeatMap(c.Request.Context(), id)
+	if err != nil {
+		if err.Error() == "showtime not found" {
+			c.JSON(http.StatusNotFound, response.Err(err.Error()))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, response.Err("Failed to fetch seat map"))
+		return
+	}
+
+	c.JSON(http.StatusOK, response.OK("Seat map retrieved", seatMap))
+}
+
 // ListByDate handles GET /api/showtimes?date=YYYY-MM-DD (public)
 func (h *ShowtimeHandler) ListByDate(c *gin.Context) {
 	dateStr := c.Query("date")

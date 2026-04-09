@@ -30,14 +30,27 @@ func (s *showtimeService) GetShowtime(ctx context.Context, id uuid.UUID) (*respo
 		genreResponses[i] = response.GenreResponse{ID: g.ID, Name: g.Name}
 	}
 
+	// Calculate available seats
+	totalSeats := 0
+	seats, err := s.seatRepository.FindByTheaterID(ctx, showtime.TheaterID)
+	if err == nil {
+		totalSeats = len(seats)
+	}
+	reservedSeats, err := s.reservationSeatRepository.FindByShowtimeID(ctx, showtime.ID)
+	reservedCount := 0
+	if err == nil {
+		reservedCount = len(reservedSeats)
+	}
+
 	return &response.ShowtimeDetailResponse{
 		ShowtimeResponse: response.ShowtimeResponse{
-			ID:        showtime.ID,
-			MovieID:   showtime.MovieID,
-			TheaterID: showtime.TheaterID,
-			StartTime: showtime.StartTime,
-			EndTime:   showtime.EndTime,
-			Price:     showtime.Price,
+			ID:             showtime.ID,
+			MovieID:        showtime.MovieID,
+			TheaterID:      showtime.TheaterID,
+			StartTime:      showtime.StartTime,
+			EndTime:        showtime.EndTime,
+			Price:          showtime.Price,
+			AvailableSeats: totalSeats - reservedCount,
 		},
 		Movie: response.MovieResponse{
 			ID:          showtime.Movie.ID,

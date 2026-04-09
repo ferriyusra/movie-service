@@ -23,13 +23,26 @@ func (s *showtimeService) ListShowtimesByDate(ctx context.Context, date time.Tim
 
 	result := make([]response.ShowtimeResponse, len(showtimes))
 	for i, st := range showtimes {
+		// Calculate available seats
+		totalSeats := 0
+		seats, err := s.seatRepository.FindByTheaterID(ctx, st.TheaterID)
+		if err == nil {
+			totalSeats = len(seats)
+		}
+		reservedSeats, err := s.reservationSeatRepository.FindByShowtimeID(ctx, st.ID)
+		reservedCount := 0
+		if err == nil {
+			reservedCount = len(reservedSeats)
+		}
+
 		result[i] = response.ShowtimeResponse{
-			ID:        st.ID,
-			MovieID:   st.MovieID,
-			TheaterID: st.TheaterID,
-			StartTime: st.StartTime,
-			EndTime:   st.EndTime,
-			Price:     st.Price,
+			ID:             st.ID,
+			MovieID:        st.MovieID,
+			TheaterID:      st.TheaterID,
+			StartTime:      st.StartTime,
+			EndTime:        st.EndTime,
+			Price:          st.Price,
+			AvailableSeats: totalSeats - reservedCount,
 		}
 	}
 

@@ -166,7 +166,9 @@ func TestCreateShowtime(t *testing.T) {
 				}
 			}
 
-			svc := NewShowtimeService(mockShowtimeRepo, mockMovieRepo, mockTheaterRepo)
+			mockSeatRepo := mock.NewMockSeatRepository(ctrl)
+			mockResSeatRepo := mock.NewMockReservationSeatRepository(ctrl)
+			svc := NewShowtimeService(mockShowtimeRepo, mockMovieRepo, mockTheaterRepo, mockSeatRepo, mockResSeatRepo)
 			result, err := svc.CreateShowtime(context.Background(), tt.request)
 
 			if tt.expectedError {

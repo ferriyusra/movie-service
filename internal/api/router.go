@@ -34,6 +34,7 @@ func SetupRoutes(
 	api.GET("/theaters/:id", theaterHandler.Get)
 	api.GET("/showtimes", showtimeHandler.ListByDate)
 	api.GET("/showtimes/:id", showtimeHandler.Get)
+	api.GET("/showtimes/:id/seats", showtimeHandler.GetSeatMap)
 
 	// Protected routes (require authentication)
 	protected := api.Group("")

@@ -143,7 +143,7 @@ func NewContainer(cfg *platform.Config) (*Container, error) {
 		Genre:    genreSvc.NewGenreService(genreRepository),
 		Movie:    movieSvc.NewMovieService(movieRepository, genreRepository),
 		Theater:  theaterSvc.NewTheaterService(theaterRepository, seatRepository),
-		Showtime:    showtimeSvc.NewShowtimeService(showtimeRepository, movieRepository, theaterRepository),
+		Showtime:    showtimeSvc.NewShowtimeService(showtimeRepository, movieRepository, theaterRepository, seatRepository, reservationSeatRepository),
 		Reservation: reservationSvc.NewReservationService(reservationRepository, reservationSeatRepository, showtimeRepository, seatRepository),
 		Admin:       adminSvc.NewAdminService(reservationRepository, userRepository),
 	}
