@@ -16,6 +16,7 @@ func SetupRoutes(
 	theaterHandler *handler.TheaterHandler,
 	showtimeHandler *handler.ShowtimeHandler,
 	reservationHandler *handler.ReservationHandler,
+	adminHandler *handler.AdminHandler,
 	tokenService token.TokenService,
 ) {
 	api := r.Group("/api")
@@ -62,6 +63,12 @@ func SetupRoutes(
 	admin.POST("/showtimes", showtimeHandler.Create)
 	admin.PUT("/showtimes/:id", showtimeHandler.Update)
 	admin.DELETE("/showtimes/:id", showtimeHandler.Delete)
+
+	// Admin-specific routes
+	admin.GET("/admin/reservations", adminHandler.ListReservations)
+	admin.DELETE("/admin/reservations/:id", adminHandler.CancelReservation)
+	admin.GET("/admin/users", adminHandler.ListUsers)
+	admin.PATCH("/admin/users/:id/promote", adminHandler.PromoteUser)
 }
 
 // SetupHealthRoutes configures health check routes

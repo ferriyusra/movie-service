@@ -65,6 +65,21 @@ func (mr *MockUserRepositoryMockRecorder) Delete(ctx, id interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockUserRepository)(nil).Delete), ctx, id)
 }
 
+// FindAll mocks base method.
+func (m *MockUserRepository) FindAll(ctx context.Context) ([]entity.UserEntity, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindAll", ctx)
+	ret0, _ := ret[0].([]entity.UserEntity)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindAll indicates an expected call of FindAll.
+func (mr *MockUserRepositoryMockRecorder) FindAll(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockUserRepository)(nil).FindAll), ctx)
+}
+
 // FindByEmail mocks base method.
 func (m *MockUserRepository) FindByEmail(ctx context.Context, email string) (*entity.UserEntity, error) {
 	m.ctrl.T.Helper()

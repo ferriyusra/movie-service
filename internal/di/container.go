@@ -20,6 +20,7 @@ import (
 	theaterRepo "github.com/ferriyusra/movie-service/internal/repository/implementations/theater"
 	userRepo "github.com/ferriyusra/movie-service/internal/repository/implementations/user"
 
+	adminSvc "github.com/ferriyusra/movie-service/internal/service/admin"
 	genreSvc "github.com/ferriyusra/movie-service/internal/service/genre"
 	healthSvc "github.com/ferriyusra/movie-service/internal/service/health"
 	movieSvc "github.com/ferriyusra/movie-service/internal/service/movie"
@@ -47,6 +48,7 @@ type Services struct {
 	Theater  theaterSvc.TheaterService
 	Showtime    showtimeSvc.ShowtimeService
 	Reservation reservationSvc.ReservationService
+	Admin       adminSvc.AdminService
 }
 
 // Handlers holds all HTTP handler dependencies
@@ -58,6 +60,7 @@ type Handlers struct {
 	Theater     *handler.TheaterHandler
 	Showtime    *handler.ShowtimeHandler
 	Reservation *handler.ReservationHandler
+	Admin       *handler.AdminHandler
 }
 
 // NewContainer creates and initializes a new dependency container
@@ -137,6 +140,7 @@ func NewContainer(cfg *platform.Config) (*Container, error) {
 		Theater:  theaterSvc.NewTheaterService(theaterRepository, seatRepository),
 		Showtime:    showtimeSvc.NewShowtimeService(showtimeRepository, movieRepository, theaterRepository),
 		Reservation: reservationSvc.NewReservationService(reservationRepository, reservationSeatRepository, showtimeRepository, seatRepository),
+		Admin:       adminSvc.NewAdminService(reservationRepository, userRepository),
 	}
 
 	// Initialize handlers
@@ -148,10 +152,11 @@ func NewContainer(cfg *platform.Config) (*Container, error) {
 		Theater:     handler.NewTheaterHandler(services.Theater),
 		Showtime:    handler.NewShowtimeHandler(services.Showtime),
 		Reservation: handler.NewReservationHandler(services.Reservation),
+		Admin:       handler.NewAdminHandler(services.Admin),
 	}
 
 	// Setup routes
-	api.SetupRoutes(r, handlers.User, handlers.Genre, handlers.Movie, handlers.Theater, handlers.Showtime, handlers.Reservation, services.Token)
+	api.SetupRoutes(r, handlers.User, handlers.Genre, handlers.Movie, handlers.Theater, handlers.Showtime, handlers.Reservation, handlers.Admin, services.Token)
 	api.SetupHealthRoutes(r, handlers.Health)
 
 	return &Container{
