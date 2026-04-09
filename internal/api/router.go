@@ -15,6 +15,7 @@ func SetupRoutes(
 	movieHandler *handler.MovieHandler,
 	theaterHandler *handler.TheaterHandler,
 	showtimeHandler *handler.ShowtimeHandler,
+	reservationHandler *handler.ReservationHandler,
 	tokenService token.TokenService,
 ) {
 	api := r.Group("/api")
@@ -40,6 +41,12 @@ func SetupRoutes(
 	// Auth protected endpoints
 	protected.GET("/auth/me", userHandler.GetMe)
 	protected.POST("/auth/logout", userHandler.Logout)
+
+	// Reservation routes (authenticated users)
+	protected.POST("/reservations", reservationHandler.Create)
+	protected.GET("/reservations", reservationHandler.List)
+	protected.GET("/reservations/:id", reservationHandler.Get)
+	protected.DELETE("/reservations/:id", reservationHandler.Cancel)
 
 	// Admin routes (require authentication + admin role)
 	admin := protected.Group("")
