@@ -11,6 +11,8 @@ import (
 func SetupRoutes(
 	r *gin.Engine,
 	userHandler *handler.UserHandler,
+	genreHandler *handler.GenreHandler,
+	movieHandler *handler.MovieHandler,
 	tokenService token.TokenService,
 ) {
 	api := r.Group("/api")
@@ -20,6 +22,11 @@ func SetupRoutes(
 	api.POST("/auth/login", userHandler.Login)
 	api.POST("/auth/refresh", userHandler.Refresh)
 
+	// Public routes
+	api.GET("/genres", genreHandler.List)
+	api.GET("/movies", movieHandler.List)
+	api.GET("/movies/:id", movieHandler.Get)
+
 	// Protected routes (require authentication)
 	protected := api.Group("")
 	protected.Use(middleware.AuthMiddleware(tokenService))
@@ -27,6 +34,16 @@ func SetupRoutes(
 	// Auth protected endpoints
 	protected.GET("/auth/me", userHandler.GetMe)
 	protected.POST("/auth/logout", userHandler.Logout)
+
+	// Admin routes (require authentication + admin role)
+	admin := protected.Group("")
+	admin.Use(middleware.AdminOnly())
+
+	admin.POST("/genres", genreHandler.Create)
+	admin.DELETE("/genres/:id", genreHandler.Delete)
+	admin.POST("/movies", movieHandler.Create)
+	admin.PUT("/movies/:id", movieHandler.Update)
+	admin.DELETE("/movies/:id", movieHandler.Delete)
 }
 
 // SetupHealthRoutes configures health check routes

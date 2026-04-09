@@ -10,10 +10,14 @@ import (
 	"github.com/ferriyusra/movie-service/internal/api/handler"
 	"github.com/ferriyusra/movie-service/internal/platform"
 
+	genreRepo "github.com/ferriyusra/movie-service/internal/repository/implementations/genre"
+	movieRepo "github.com/ferriyusra/movie-service/internal/repository/implementations/movie"
 	refreshTokenRepo "github.com/ferriyusra/movie-service/internal/repository/implementations/refresh_token"
 	userRepo "github.com/ferriyusra/movie-service/internal/repository/implementations/user"
 
+	genreSvc "github.com/ferriyusra/movie-service/internal/service/genre"
 	healthSvc "github.com/ferriyusra/movie-service/internal/service/health"
+	movieSvc "github.com/ferriyusra/movie-service/internal/service/movie"
 	tokenSvc "github.com/ferriyusra/movie-service/internal/service/token"
 	userSvc "github.com/ferriyusra/movie-service/internal/service/user"
 )
@@ -30,12 +34,16 @@ type Services struct {
 	Health healthSvc.HealthService
 	User   userSvc.UserService
 	Token  tokenSvc.TokenService
+	Genre  genreSvc.GenreService
+	Movie  movieSvc.MovieService
 }
 
 // Handlers holds all HTTP handler dependencies
 type Handlers struct {
 	Health *handler.HealthHandler
 	User   *handler.UserHandler
+	Genre  *handler.GenreHandler
+	Movie  *handler.MovieHandler
 }
 
 // NewContainer creates and initializes a new dependency container
@@ -88,6 +96,8 @@ func NewContainer(cfg *platform.Config) (*Container, error) {
 	if err != nil {
 		return nil, fmt.Errorf("initializing refresh token repository: %w", err)
 	}
+	genreRepository := genreRepo.NewGORMGenreRepository(db)
+	movieRepository := movieRepo.NewGORMMovieRepository(db)
 
 	// Initialize token service
 	tokenConfig := tokenSvc.TokenConfig{
@@ -103,16 +113,20 @@ func NewContainer(cfg *platform.Config) (*Container, error) {
 		Health: healthSvc.NewHealthService(),
 		User:   userSvc.NewUserService(userRepository, refreshTokenRepository, tokenService),
 		Token:  tokenService,
+		Genre:  genreSvc.NewGenreService(genreRepository),
+		Movie:  movieSvc.NewMovieService(movieRepository, genreRepository),
 	}
 
 	// Initialize handlers
 	handlers := &Handlers{
 		Health: handler.NewHealthHandler(services.Health),
 		User:   handler.NewUserHandler(services.User),
+		Genre:  handler.NewGenreHandler(services.Genre),
+		Movie:  handler.NewMovieHandler(services.Movie),
 	}
 
 	// Setup routes
-	api.SetupRoutes(r, handlers.User, services.Token)
+	api.SetupRoutes(r, handlers.User, handlers.Genre, handlers.Movie, services.Token)
 	api.SetupHealthRoutes(r, handlers.Health)
 
 	return &Container{

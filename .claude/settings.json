@@ -12,7 +12,10 @@
       "Bash(rm -rf .claude/temp)",
       "Bash(./.claude/scripts/update-openapi.sh:*)",
       "Bash(jq:*)",
-      "Bash(osv-scanner:*)"
+      "Bash(osv-scanner:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)"
     ],
     "deny": []
   },
