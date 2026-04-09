@@ -13,6 +13,7 @@ type UserEntity struct {
 	Email     string         `gorm:"uniqueIndex"`
 	Password  []byte
 	Name      string
+	Role      string         `gorm:"type:varchar(20);default:'user'"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`

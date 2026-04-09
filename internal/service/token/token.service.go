@@ -20,12 +20,13 @@ type TokenClaims struct {
 	UserID uuid.UUID `json:"sub"`
 	Email  string    `json:"email"`
 	Name   string    `json:"name"`
+	Role   string    `json:"role"`
 	jwt.RegisteredClaims
 }
 
 // TokenService handles token generation and validation
 type TokenService interface {
-	GenerateAccessToken(userID uuid.UUID, email, name string) (string, error)
+	GenerateAccessToken(userID uuid.UUID, email, name, role string) (string, error)
 	GenerateRefreshToken(userID uuid.UUID) (string, error)
 	ValidateAccessToken(tokenString string) (*TokenClaims, error)
 	ValidateRefreshToken(tokenString string) (*TokenClaims, error)

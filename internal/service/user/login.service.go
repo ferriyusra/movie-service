@@ -32,7 +32,7 @@ func (s *userService) Login(ctx context.Context, req *request.LoginRequest) (*re
 		return nil, errors.New("invalid email or password")
 	}
 
-	accessToken, err := s.tokenService.GenerateAccessToken(user.ID, user.Email, user.Name)
+	accessToken, err := s.tokenService.GenerateAccessToken(user.ID, user.Email, user.Name, user.Role)
 	if err != nil {
 		return nil, fmt.Errorf("generating access token: %w", err)
 	}

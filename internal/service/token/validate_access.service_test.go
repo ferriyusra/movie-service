@@ -26,7 +26,7 @@ func TestValidateAccessToken(t *testing.T) {
 		{
 			name: "should validate access token successfully",
 			tokenFunc: func(svc TokenService) string {
-				token, _ := svc.GenerateAccessToken(testUserID, "test@example.com", "Test User")
+				token, _ := svc.GenerateAccessToken(testUserID, "test@example.com", "Test User", "user")
 				return token
 			},
 			expectedError: false,
@@ -50,7 +50,7 @@ func TestValidateAccessToken(t *testing.T) {
 		{
 			name: "should return error for tampered token",
 			tokenFunc: func(svc TokenService) string {
-				token, _ := svc.GenerateAccessToken(testUserID, "test@example.com", "Test User")
+				token, _ := svc.GenerateAccessToken(testUserID, "test@example.com", "Test User", "user")
 				return token + "tampered"
 			},
 			expectedError: true,
@@ -65,7 +65,7 @@ func TestValidateAccessToken(t *testing.T) {
 					RefreshTokenExpiry: 7 * 24 * time.Hour,
 				}
 				wrongSvc := NewTokenService(wrongConfig)
-				token, _ := wrongSvc.GenerateAccessToken(testUserID, "test@example.com", "Test User")
+				token, _ := wrongSvc.GenerateAccessToken(testUserID, "test@example.com", "Test User", "user")
 				return token
 			},
 			expectedError: true,
@@ -116,7 +116,7 @@ func TestValidateAccessTokenExpired(t *testing.T) {
 	}
 
 	service := NewTokenService(config)
-	tokenString, _ := service.GenerateAccessToken(testUserID, "test@example.com", "Test User")
+	tokenString, _ := service.GenerateAccessToken(testUserID, "test@example.com", "Test User", "user")
 
 	time.Sleep(100 * time.Millisecond)
 
@@ -143,7 +143,7 @@ func TestValidateAccessTokenClaimsIntegrity(t *testing.T) {
 	}
 
 	service := NewTokenService(config)
-	tokenString, _ := service.GenerateAccessToken(testUserID, testEmail, testName)
+	tokenString, _ := service.GenerateAccessToken(testUserID, testEmail, testName, "user")
 
 	claims, err := service.ValidateAccessToken(tokenString)
 

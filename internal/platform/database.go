@@ -3,6 +3,7 @@ package platform
 import (
 	"fmt"
 
+	"github.com/ferriyusra/movie-service/internal/model/entity"
 	"github.com/glebarez/sqlite"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -32,6 +33,21 @@ func InitializeDatabase(cfg *Config) (*gorm.DB, error) {
 	sqlDB.SetMaxOpenConns(cfg.Database.MaxOpenConns)
 	sqlDB.SetMaxIdleConns(cfg.Database.MaxIdleConns)
 	sqlDB.SetConnMaxLifetime(cfg.Database.ConnMaxLifetime)
+
+	// Auto-migrate all entity schemas
+	if err := db.AutoMigrate(
+		&entity.UserEntity{},
+		&entity.RefreshTokenEntity{},
+		&entity.GenreEntity{},
+		&entity.MovieEntity{},
+		&entity.TheaterEntity{},
+		&entity.SeatEntity{},
+		&entity.ShowtimeEntity{},
+		&entity.ReservationEntity{},
+		&entity.ReservationSeatEntity{},
+	); err != nil {
+		return nil, fmt.Errorf("auto-migrating database: %w", err)
+	}
 
 	return db, nil
 }

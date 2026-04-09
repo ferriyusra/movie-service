@@ -50,7 +50,7 @@ func TestGenerateAccessToken(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			service := NewTokenService(tt.config)
-			tokenString, err := service.GenerateAccessToken(tt.userID, tt.email, tt.userName)
+			tokenString, err := service.GenerateAccessToken(tt.userID, tt.email, tt.userName, "user")
 
 			if tt.expectedError {
 				if err == nil {
@@ -95,7 +95,7 @@ func TestGenerateAccessTokenWithEmptySecret(t *testing.T) {
 		RefreshTokenExpiry: 7 * 24 * time.Hour,
 	})
 
-	tokenString, err := service.GenerateAccessToken(uuid.New(), "test@example.com", "Test User")
+	tokenString, err := service.GenerateAccessToken(uuid.New(), "test@example.com", "Test User", "user")
 
 	if err != nil {
 		t.Errorf("unexpected error with empty secret: %v", err)
@@ -114,7 +114,7 @@ func TestGenerateAccessTokenClaimsExpiry(t *testing.T) {
 		RefreshTokenExpiry: 7 * 24 * time.Hour,
 	})
 
-	tokenString, err := service.GenerateAccessToken(uuid.New(), "test@example.com", "Test User")
+	tokenString, err := service.GenerateAccessToken(uuid.New(), "test@example.com", "Test User", "user")
 	if err != nil {
 		t.Fatalf("failed to generate token: %v", err)
 	}
