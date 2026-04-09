@@ -34,7 +34,7 @@ func (s *userService) Refresh(ctx context.Context, refreshToken string) (*respon
 		return nil, errors.New("refresh token has expired")
 	}
 
-	accessToken, err := s.tokenService.GenerateAccessToken(claims.UserID, claims.Email, claims.Name)
+	accessToken, err := s.tokenService.GenerateAccessToken(claims.UserID, claims.Email, claims.Name, claims.Role)
 	if err != nil {
 		return nil, fmt.Errorf("generating access token: %w", err)
 	}

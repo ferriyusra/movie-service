@@ -172,7 +172,7 @@ func TestValidateRefreshTokenAccessTokenMismatch(t *testing.T) {
 	service := NewTokenService(config)
 
 	// Generate an access token
-	accessToken, _ := service.GenerateAccessToken(testUserID, "test@example.com", "Test User")
+	accessToken, _ := service.GenerateAccessToken(testUserID, "test@example.com", "Test User", "user")
 
 	// Try to validate it as a refresh token (with wrong secret)
 	_, err := service.ValidateRefreshToken(accessToken)

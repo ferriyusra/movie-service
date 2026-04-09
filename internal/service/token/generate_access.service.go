@@ -8,11 +8,12 @@ import (
 )
 
 // GenerateAccessToken generates a new access token
-func (s *tokenService) GenerateAccessToken(userID uuid.UUID, email, name string) (string, error) {
+func (s *tokenService) GenerateAccessToken(userID uuid.UUID, email, name, role string) (string, error) {
 	claims := TokenClaims{
 		UserID: userID,
 		Email:  email,
 		Name:   name,
+		Role:   role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.config.AccessTokenExpiry)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

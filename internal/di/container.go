@@ -74,6 +74,11 @@ func NewContainer(cfg *platform.Config) (*Container, error) {
 		cfg.Database.Gorm = db
 	}
 
+	// Seed admin account on first startup
+	if err := platform.SeedAdminAccount(db); err != nil {
+		return nil, fmt.Errorf("seeding admin account: %w", err)
+	}
+
 	// Initialize repositories
 	userRepository, err := userRepo.NewGORMUserRepository(db)
 	if err != nil {
