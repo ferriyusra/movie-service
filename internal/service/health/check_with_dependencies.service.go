@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/response"
+	"github.com/ferriyusra/movie-service/internal/model/response"
 )
 
 // CheckWithDependencies performs health checks on multiple dependencies

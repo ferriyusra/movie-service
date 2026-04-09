@@ -10,7 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
-	entity "github.com/ferriyusra/clean-arch-go-gin/internal/model/entity"
+	entity "github.com/ferriyusra/movie-service/internal/model/entity"
 )
 
 // MockUserRepository is a mock of UserRepository interface.

@@ -19,5 +19,5 @@ type UserEntity struct {
 }
 
 func (UserEntity) TableName() string {
-	return "user_entities"
+	return "users"
 }

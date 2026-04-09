@@ -14,7 +14,7 @@ func (s *tokenService) GenerateRefreshToken(userID uuid.UUID) (string, error) {
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.config.RefreshTokenExpiry)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			Issuer:    "go-vite-react",
+			Issuer:    "movie-service",
 		},
 	}
 

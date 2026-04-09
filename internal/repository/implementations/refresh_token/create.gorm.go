@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/entity"
+	"github.com/ferriyusra/movie-service/internal/model/entity"
 )
 
 // Create stores a new refresh token

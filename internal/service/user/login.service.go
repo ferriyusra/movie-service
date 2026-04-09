@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/request"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/response"
+	"github.com/ferriyusra/movie-service/internal/model/request"
+	"github.com/ferriyusra/movie-service/internal/model/response"
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Login authenticates a user and returns user info (tokens set via cookies in handler)
+// Login authenticates a user, generates auth tokens, and returns the full auth response.
 func (s *userService) Login(ctx context.Context, req *request.LoginRequest) (*response.LoginResponse, error) {
 	select {
 	case <-ctx.Done():
@@ -18,7 +18,6 @@ func (s *userService) Login(ctx context.Context, req *request.LoginRequest) (*re
 	default:
 	}
 
-	// Find user by email
 	user, err := s.userRepository.FindByEmail(ctx, req.Email)
 	if err != nil {
 		return nil, fmt.Errorf("finding user by email: %w", err)
@@ -28,10 +27,23 @@ func (s *userService) Login(ctx context.Context, req *request.LoginRequest) (*re
 		return nil, errors.New("invalid email or password")
 	}
 
-	// Compare password
 	err = bcrypt.CompareHashAndPassword(user.Password, []byte(req.Password))
 	if err != nil {
 		return nil, errors.New("invalid email or password")
+	}
+
+	accessToken, err := s.tokenService.GenerateAccessToken(user.ID, user.Email, user.Name)
+	if err != nil {
+		return nil, fmt.Errorf("generating access token: %w", err)
+	}
+
+	refreshToken, err := s.tokenService.GenerateRefreshToken(user.ID)
+	if err != nil {
+		return nil, fmt.Errorf("generating refresh token: %w", err)
+	}
+
+	if err := s.storeRefreshToken(ctx, user.ID, refreshToken); err != nil {
+		return nil, err
 	}
 
 	return &response.LoginResponse{
@@ -40,5 +52,7 @@ func (s *userService) Login(ctx context.Context, req *request.LoginRequest) (*re
 			Email: user.Email,
 			Name:  user.Name,
 		},
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	}, nil
 }

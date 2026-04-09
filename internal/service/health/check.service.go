@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/response"
+	"github.com/ferriyusra/movie-service/internal/model/response"
 )
 
 // Check performs a basic health check

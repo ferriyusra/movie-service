@@ -160,7 +160,7 @@ func TestValidateAccessTokenClaimsIntegrity(t *testing.T) {
 	if claims.Name != testName {
 		t.Errorf("Name mismatch: expected %s, got %s", testName, claims.Name)
 	}
-	if claims.Issuer != "go-vite-react" {
-		t.Errorf("Issuer mismatch: expected go-vite-react, got %s", claims.Issuer)
+	if claims.Issuer != "movie-service" {
+		t.Errorf("Issuer mismatch: expected movie-service, got %s", claims.Issuer)
 	}
 }

@@ -176,9 +176,9 @@ return &response.GetProduct{
 package handler
 
 import (
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/request"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/response"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/entity"
+	"github.com/ferriyusra/movie-service/internal/model/request"
+	"github.com/ferriyusra/movie-service/internal/model/response"
+	"github.com/ferriyusra/movie-service/internal/model/entity"
 )
 
 func CreateProduct(c *gin.Context) {
@@ -209,9 +209,9 @@ func CreateProduct(c *gin.Context) {
 
 ```go
 import (
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/entity"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/request"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/response"
+	"github.com/ferriyusra/movie-service/internal/model/entity"
+	"github.com/ferriyusra/movie-service/internal/model/request"
+	"github.com/ferriyusra/movie-service/internal/model/response"
 )
 ```
 

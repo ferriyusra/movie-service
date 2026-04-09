@@ -2,53 +2,25 @@ package handler
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/api/middleware"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/request"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/response"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/service/csrf"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/service/token"
-	userSvc "github.com/ferriyusra/clean-arch-go-gin/internal/service/user"
-)
-
-const (
-	accessTokenMaxAge  = 15 * 60          // 15 minutes
-	refreshTokenMaxAge = 7 * 24 * 60 * 60 // 7 days
+	"github.com/ferriyusra/movie-service/internal/api/middleware"
+	"github.com/ferriyusra/movie-service/internal/model/request"
+	"github.com/ferriyusra/movie-service/internal/model/response"
+	userSvc "github.com/ferriyusra/movie-service/internal/service/user"
 )
 
 // UserHandler handles user-related HTTP requests
 type UserHandler struct {
-	userService  userSvc.UserService
-	tokenService token.TokenService
-	csrfService  csrf.CSRFService
-	devMode      bool
+	userService userSvc.UserService
 }
 
 // NewUserHandler creates a new instance of UserHandler
-func NewUserHandler(userService userSvc.UserService, tokenService token.TokenService, csrfService csrf.CSRFService, devMode bool) *UserHandler {
+func NewUserHandler(userService userSvc.UserService) *UserHandler {
 	return &UserHandler{
-		userService:  userService,
-		tokenService: tokenService,
-		csrfService:  csrfService,
-		devMode:      devMode,
+		userService: userService,
 	}
-}
-
-func (h *UserHandler) setAuthCookies(c *gin.Context, accessToken, refreshToken string) {
-	secure := !h.devMode
-	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie(middleware.AccessTokenCookie, accessToken, accessTokenMaxAge, "/", "", secure, true)
-	c.SetCookie(middleware.RefreshTokenCookie, refreshToken, refreshTokenMaxAge, "/", "", secure, true)
-}
-
-func (h *UserHandler) clearAuthCookies(c *gin.Context) {
-	secure := !h.devMode
-	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie(middleware.AccessTokenCookie, "", -1, "/", "", secure, true)
-	c.SetCookie(middleware.RefreshTokenCookie, "", -1, "/", "", secure, true)
 }
 
 // Register handles POST /api/auth/register requests
@@ -59,7 +31,6 @@ func (h *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	// Validate input
 	errs := make(map[string]string)
 	if req.Email == "" {
 		errs["email"] = "Email is required"
@@ -75,34 +46,11 @@ func (h *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	// Register user
 	resp, err := h.userService.Register(c.Request.Context(), req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, response.Err(err.Error()))
 		return
 	}
-
-	// Generate tokens
-	accessToken, err := h.tokenService.GenerateAccessToken(resp.User.ID, resp.User.Email, resp.User.Name)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, response.Err("Failed to generate access token"))
-		return
-	}
-
-	refreshToken, err := h.tokenService.GenerateRefreshToken(resp.User.ID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, response.Err("Failed to generate refresh token"))
-		return
-	}
-
-	// Store refresh token
-	expiresAt := time.Now().Add(time.Duration(refreshTokenMaxAge) * time.Second)
-	if err := h.userService.StoreRefreshToken(c.Request.Context(), resp.User.ID, refreshToken, expiresAt); err != nil {
-		c.JSON(http.StatusInternalServerError, response.Err("Failed to store refresh token"))
-		return
-	}
-
-	h.setAuthCookies(c, accessToken, refreshToken)
 
 	c.JSON(http.StatusCreated, response.OK("Registration successful", resp))
 }
@@ -115,7 +63,6 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	// Validate input
 	errs := make(map[string]string)
 	if req.Email == "" {
 		errs["email"] = "Email is required"
@@ -128,71 +75,40 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	// Login user
 	resp, err := h.userService.Login(c.Request.Context(), req)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, response.Err(err.Error()))
 		return
 	}
 
-	// Generate tokens
-	accessToken, err := h.tokenService.GenerateAccessToken(resp.User.ID, resp.User.Email, resp.User.Name)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, response.Err("Failed to generate access token"))
-		return
-	}
-
-	refreshToken, err := h.tokenService.GenerateRefreshToken(resp.User.ID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, response.Err("Failed to generate refresh token"))
-		return
-	}
-
-	// Store refresh token
-	expiresAt := time.Now().Add(time.Duration(refreshTokenMaxAge) * time.Second)
-	if err := h.userService.StoreRefreshToken(c.Request.Context(), resp.User.ID, refreshToken, expiresAt); err != nil {
-		c.JSON(http.StatusInternalServerError, response.Err("Failed to store refresh token"))
-		return
-	}
-
-	h.setAuthCookies(c, accessToken, refreshToken)
-
 	c.JSON(http.StatusOK, response.OK("Login successful", resp))
 }
 
 // Refresh handles POST /api/auth/refresh requests
 func (h *UserHandler) Refresh(c *gin.Context) {
-	tokenStr, err := c.Cookie(middleware.RefreshTokenCookie)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, response.Err("Missing refresh token"))
+	req := &request.RefreshTokenRequest{}
+	if err := c.ShouldBindJSON(req); err != nil || req.RefreshToken == "" {
+		c.JSON(http.StatusBadRequest, response.Err("refresh_token is required"))
 		return
 	}
 
-	resp, err := h.userService.Refresh(c.Request.Context(), tokenStr)
+	resp, err := h.userService.Refresh(c.Request.Context(), req.RefreshToken)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, response.Err(err.Error()))
 		return
 	}
 
-	// resp.Message contains the new access token
-	secure := !h.devMode
-	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie(middleware.AccessTokenCookie, resp.Message, accessTokenMaxAge, "/", "", secure, true)
-
-	c.JSON(http.StatusOK, response.OK("Token refreshed", nil))
+	c.JSON(http.StatusOK, response.OK("Token refreshed", resp))
 }
 
 // Logout handles POST /api/auth/logout requests
 func (h *UserHandler) Logout(c *gin.Context) {
-	// Revoke refresh tokens from database
 	userID, exists := c.Get(middleware.UserIDCtxKey)
 	if exists {
 		if id, err := uuid.Parse(userID.(string)); err == nil {
 			_ = h.userService.RevokeRefreshTokens(c.Request.Context(), id)
 		}
 	}
-
-	h.clearAuthCookies(c)
 
 	c.JSON(http.StatusOK, response.OK("Logged out successfully", nil))
 }
@@ -212,15 +128,4 @@ func (h *UserHandler) GetMe(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response.OK("User retrieved", user))
-}
-
-// GetCSRFToken handles GET /api/csrf requests
-func (h *UserHandler) GetCSRFToken(c *gin.Context) {
-	token, err := h.csrfService.GenerateToken()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, response.Err("Failed to generate CSRF token"))
-		return
-	}
-
-	c.JSON(http.StatusOK, response.OK("CSRF token generated", map[string]string{"token": token}))
 }

@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/response"
+	"github.com/ferriyusra/movie-service/internal/model/response"
 )
 
-// Refresh generates a new access token from a refresh token
+// Refresh validates a refresh token, rotates it, and returns a new access token and refresh token.
 func (s *userService) Refresh(ctx context.Context, refreshToken string) (*response.RefreshResponse, error) {
 	select {
 	case <-ctx.Done():
@@ -18,13 +18,11 @@ func (s *userService) Refresh(ctx context.Context, refreshToken string) (*respon
 	default:
 	}
 
-	// Validate refresh token JWT
 	claims, err := s.tokenService.ValidateRefreshToken(refreshToken)
 	if err != nil {
 		return nil, errors.New("invalid refresh token")
 	}
 
-	// Verify refresh token exists in database (not revoked)
 	storedToken, err := s.refreshTokenRepository.FindByToken(ctx, refreshToken)
 	if err != nil {
 		return nil, fmt.Errorf("verifying refresh token: %w", err)
@@ -36,14 +34,28 @@ func (s *userService) Refresh(ctx context.Context, refreshToken string) (*respon
 		return nil, errors.New("refresh token has expired")
 	}
 
-	// Generate new access token
 	accessToken, err := s.tokenService.GenerateAccessToken(claims.UserID, claims.Email, claims.Name)
 	if err != nil {
 		return nil, fmt.Errorf("generating access token: %w", err)
 	}
 
+	// Rotate refresh token — revoke the old one and issue a new one
+	if err := s.refreshTokenRepository.DeleteByToken(ctx, refreshToken); err != nil {
+		return nil, fmt.Errorf("revoking old refresh token: %w", err)
+	}
+
+	newRefreshToken, err := s.tokenService.GenerateRefreshToken(claims.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("generating refresh token: %w", err)
+	}
+
+	if err := s.storeRefreshToken(ctx, claims.UserID, newRefreshToken); err != nil {
+		return nil, err
+	}
+
 	return &response.RefreshResponse{
-		Message: accessToken,
+		AccessToken:  accessToken,
+		RefreshToken: newRefreshToken,
 	}, nil
 }
 

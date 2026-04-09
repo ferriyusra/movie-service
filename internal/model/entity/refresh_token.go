@@ -19,5 +19,5 @@ type RefreshTokenEntity struct {
 }
 
 func (RefreshTokenEntity) TableName() string {
-	return "refresh_token_entities"
+	return "refresh_tokens"
 }

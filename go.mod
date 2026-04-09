@@ -1,4 +1,4 @@
-module github.com/ferriyusra/clean-arch-go-gin
+module github.com/ferriyusra/movie-service
 
 go 1.25.6
 

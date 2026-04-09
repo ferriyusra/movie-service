@@ -57,9 +57,9 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/repository/mock"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/request"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/response"
+	"github.com/ferriyusra/movie-service/internal/repository/mock"
+	"github.com/ferriyusra/movie-service/internal/model/request"
+	"github.com/ferriyusra/movie-service/internal/model/response"
 )
 
 func TestCreateUser(t *testing.T) {
@@ -133,9 +133,9 @@ package user
 import (
 	"context"
 
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/request"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/response"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/repository/interfaces"
+	"github.com/ferriyusra/movie-service/internal/model/request"
+	"github.com/ferriyusra/movie-service/internal/model/response"
+	"github.com/ferriyusra/movie-service/internal/repository/interfaces"
 )
 
 // UserService defines the interface for user operations
@@ -168,8 +168,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/request"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/response"
+	"github.com/ferriyusra/movie-service/internal/model/request"
+	"github.com/ferriyusra/movie-service/internal/model/response"
 )
 
 // CreateUser creates a new user
@@ -204,7 +204,7 @@ Expected output:
 --- PASS: TestCreateUser/should_return_error_when_repository_fails (0.00s)
 --- PASS: TestCreateUser (0.00s)
 PASS
-ok  	github.com/ferriyusra/clean-arch-go-gin/internal/service/user	0.001s
+ok  	github.com/ferriyusra/movie-service/internal/service/user	0.001s
 ```
 
 ## Best Practices

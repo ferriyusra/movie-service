@@ -7,10 +7,10 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/entity"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/request"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/repository/mock"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/service/token"
+	"github.com/ferriyusra/movie-service/internal/model/entity"
+	"github.com/ferriyusra/movie-service/internal/model/request"
+	"github.com/ferriyusra/movie-service/internal/repository/mock"
+	"github.com/ferriyusra/movie-service/internal/service/token"
 )
 
 func TestRegister(t *testing.T) {
@@ -81,17 +81,14 @@ func TestRegister(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			// Setup mock repositories
 			mockRepo := mock.NewMockUserRepository(ctrl)
 			mockRefreshTokenRepo := mock.NewMockRefreshTokenRepository(ctrl)
 
-			// Setup FindByEmail expectation
 			mockRepo.EXPECT().
 				FindByEmail(gomock.Any(), tt.request.Email).
 				Return(tt.mockFindByEmail, tt.mockFindByEmailErr).
 				Times(1)
 
-			// Setup Create expectation only if FindByEmail succeeds and user doesn't exist
 			if tt.mockFindByEmailErr == nil && tt.mockFindByEmail == nil {
 				mockRepo.EXPECT().
 					Create(gomock.Any(), gomock.Any()).
@@ -99,20 +96,16 @@ func TestRegister(t *testing.T) {
 					Times(1)
 			}
 
-			// Setup token service
 			tokenConfig := token.TokenConfig{
 				AccessTokenSecret:  "test-access-secret",
 				RefreshTokenSecret: "test-refresh-secret",
 			}
 			tokenSvc := token.NewTokenService(tokenConfig)
 
-			// Create service with mocked repositories
 			svc := NewUserService(mockRepo, mockRefreshTokenRepo, tokenSvc)
 
-			// Call the method being tested
 			result, err := svc.Register(context.Background(), tt.request)
 
-			// Assert results
 			if tt.expectedError {
 				if err == nil {
 					t.Errorf("expected error, got nil")
@@ -125,15 +118,13 @@ func TestRegister(t *testing.T) {
 					t.Errorf("unexpected error: %v", err)
 				}
 				if result == nil {
-					t.Errorf("expected non-nil result")
+					t.Fatal("expected non-nil result")
 				}
-				if result != nil {
-					if result.User.Email != tt.request.Email {
-						t.Errorf("expected email %s, got %s", tt.request.Email, result.User.Email)
-					}
-					if result.User.Name != tt.request.Name {
-						t.Errorf("expected name %s, got %s", tt.request.Name, result.User.Name)
-					}
+				if result.User.Email != tt.request.Email {
+					t.Errorf("expected email %s, got %s", tt.request.Email, result.User.Email)
+				}
+				if result.User.Name != tt.request.Name {
+					t.Errorf("expected name %s, got %s", tt.request.Name, result.User.Name)
 				}
 			}
 		})
@@ -154,7 +145,6 @@ func TestRegisterContextCancellation(t *testing.T) {
 
 	svc := NewUserService(mockRepo, mockRefreshTokenRepo, tokenSvc)
 
-	// Create a cancelled context
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 

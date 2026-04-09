@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/di"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/platform"
+	"github.com/ferriyusra/movie-service/internal/di"
+	"github.com/ferriyusra/movie-service/internal/platform"
 )
 
 func main() {

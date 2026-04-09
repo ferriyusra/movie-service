@@ -1,9 +1,10 @@
 package token
 
 import (
+	"time"
+
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"time"
 )
 
 // GenerateAccessToken generates a new access token
@@ -15,7 +16,7 @@ func (s *tokenService) GenerateAccessToken(userID uuid.UUID, email, name string)
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.config.AccessTokenExpiry)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			Issuer:    "go-vite-react",
+			Issuer:    "movie-service",
 		},
 	}
 

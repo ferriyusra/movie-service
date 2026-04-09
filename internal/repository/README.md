@@ -61,7 +61,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/entity"
+	"github.com/ferriyusra/movie-service/internal/model/entity"
 )
 
 // UserRepository defines the interface for user data access
@@ -106,7 +106,7 @@ package mock
 import (
 	context "context"
 	gomock "github.com/golang/mock/gomock"
-	entity "github.com/ferriyusra/clean-arch-go-gin/internal/model/entity"
+	entity "github.com/ferriyusra/movie-service/internal/model/entity"
 	uuid "github.com/google/uuid"
 )
 
@@ -139,8 +139,8 @@ Create `internal/repository/implementations/user/user.gorm.go`:
 package user
 
 import (
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/entity"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/repository/interfaces"
+	"github.com/ferriyusra/movie-service/internal/model/entity"
+	"github.com/ferriyusra/movie-service/internal/repository/interfaces"
 	"gorm.io/gorm"
 )
 
@@ -189,7 +189,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/entity"
+	"github.com/ferriyusra/movie-service/internal/model/entity"
 )
 
 // Create creates a new user in the database
@@ -224,7 +224,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/entity"
+	"github.com/ferriyusra/movie-service/internal/model/entity"
 	"gorm.io/gorm"
 )
 
@@ -257,7 +257,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/entity"
+	"github.com/ferriyusra/movie-service/internal/model/entity"
 )
 
 // Update updates an existing user

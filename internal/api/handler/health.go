@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/response"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/service/health"
+	"github.com/ferriyusra/movie-service/internal/model/response"
+	"github.com/ferriyusra/movie-service/internal/service/health"
 )
 
 // HealthHandler handles health check requests

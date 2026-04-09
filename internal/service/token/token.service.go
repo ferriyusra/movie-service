@@ -29,6 +29,7 @@ type TokenService interface {
 	GenerateRefreshToken(userID uuid.UUID) (string, error)
 	ValidateAccessToken(tokenString string) (*TokenClaims, error)
 	ValidateRefreshToken(tokenString string) (*TokenClaims, error)
+	RefreshTokenExpiry() time.Duration
 }
 
 // tokenService implements TokenService
@@ -41,4 +42,9 @@ func NewTokenService(config TokenConfig) TokenService {
 	return &tokenService{
 		config: config,
 	}
+}
+
+// RefreshTokenExpiry returns the configured refresh token TTL
+func (s *tokenService) RefreshTokenExpiry() time.Duration {
+	return s.config.RefreshTokenExpiry
 }

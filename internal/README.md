@@ -104,7 +104,7 @@ internal/
 
 1. **Clone and navigate to project:**
    ```bash
-   cd clean-go-vite-react
+   cd movie-service
    ```
 
 2. **Install dependencies:**
@@ -221,7 +221,7 @@ package interfaces
 import (
     "context"
     "github.com/google/uuid"
-    "github.com/ferriyusra/clean-arch-go-gin/internal/model/entity"
+    "github.com/ferriyusra/movie-service/internal/model/entity"
 )
 
 type ProductRepository interface {
@@ -245,8 +245,8 @@ This generates `internal/repository/mock/product.repository_mock.go`
 package product
 
 import (
-    "github.com/ferriyusra/clean-arch-go-gin/internal/model/entity"
-    "github.com/ferriyusra/clean-arch-go-gin/internal/repository/interfaces"
+    "github.com/ferriyusra/movie-service/internal/model/entity"
+    "github.com/ferriyusra/movie-service/internal/repository/interfaces"
     "gorm.io/gorm"
 )
 
@@ -307,8 +307,8 @@ import (
     "testing"
     "github.com/golang/mock/gomock"
     "github.com/google/uuid"
-    "github.com/ferriyusra/clean-arch-go-gin/internal/repository/mock"
-    "github.com/ferriyusra/clean-arch-go-gin/internal/model/request"
+    "github.com/ferriyusra/movie-service/internal/repository/mock"
+    "github.com/ferriyusra/movie-service/internal/model/request"
 )
 
 func TestCreateProduct(t *testing.T) {
@@ -350,9 +350,9 @@ package product
 
 import (
     "context"
-    "github.com/ferriyusra/clean-arch-go-gin/internal/model/request"
-    "github.com/ferriyusra/clean-arch-go-gin/internal/model/response"
-    "github.com/ferriyusra/clean-arch-go-gin/internal/repository/interfaces"
+    "github.com/ferriyusra/movie-service/internal/model/request"
+    "github.com/ferriyusra/movie-service/internal/model/response"
+    "github.com/ferriyusra/movie-service/internal/repository/interfaces"
 )
 
 type ProductService interface {
@@ -398,9 +398,9 @@ package handler
 import (
     "net/http"
     "github.com/gin-gonic/gin"
-    "github.com/ferriyusra/clean-arch-go-gin/internal/service/product"
-    "github.com/ferriyusra/clean-arch-go-gin/internal/model/request"
-    "github.com/ferriyusra/clean-arch-go-gin/internal/model/response"
+    "github.com/ferriyusra/movie-service/internal/service/product"
+    "github.com/ferriyusra/movie-service/internal/model/request"
+    "github.com/ferriyusra/movie-service/internal/model/response"
 )
 
 type ProductHandler struct {
@@ -578,7 +578,7 @@ docker-compose -f docker-compose.prod.yml up -d
 **Option 3: Systemd Service**
 ```ini
 [Unit]
-Description=Clean Go Vite React Backend
+Description=Movie Service
 After=network.target
 
 [Service]

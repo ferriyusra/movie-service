@@ -8,9 +8,9 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/entity"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/repository/mock"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/service/token"
+	"github.com/ferriyusra/movie-service/internal/model/entity"
+	"github.com/ferriyusra/movie-service/internal/repository/mock"
+	"github.com/ferriyusra/movie-service/internal/service/token"
 )
 
 func TestRefresh(t *testing.T) {
@@ -31,9 +31,12 @@ func TestRefresh(t *testing.T) {
 		refreshToken       string
 		mockFindByToken    *entity.RefreshTokenEntity
 		mockFindByTokenErr error
-		setupMock          bool
-		expectedError      bool
-		expectedErrorMsg   string
+		// setupMock controls whether FindByToken is expected
+		setupMock        bool
+		// rotationMock controls whether DeleteByToken + Create are expected (happy path only)
+		rotationMock     bool
+		expectedError    bool
+		expectedErrorMsg string
 	}{
 		{
 			name:         "should refresh token successfully",
@@ -46,12 +49,14 @@ func TestRefresh(t *testing.T) {
 			},
 			mockFindByTokenErr: nil,
 			setupMock:          true,
+			rotationMock:       true,
 			expectedError:      false,
 		},
 		{
 			name:             "should return error when refresh token is invalid JWT",
 			refreshToken:     "invalid-token",
 			setupMock:        false,
+			rotationMock:     false,
 			expectedError:    true,
 			expectedErrorMsg: "invalid refresh token",
 		},
@@ -59,6 +64,7 @@ func TestRefresh(t *testing.T) {
 			name:             "should return error when refresh token is empty",
 			refreshToken:     "",
 			setupMock:        false,
+			rotationMock:     false,
 			expectedError:    true,
 			expectedErrorMsg: "invalid refresh token",
 		},
@@ -68,6 +74,7 @@ func TestRefresh(t *testing.T) {
 			mockFindByToken:    nil,
 			mockFindByTokenErr: nil,
 			setupMock:          true,
+			rotationMock:       false,
 			expectedError:      true,
 			expectedErrorMsg:   "refresh token has been revoked",
 		},
@@ -82,6 +89,7 @@ func TestRefresh(t *testing.T) {
 			},
 			mockFindByTokenErr: nil,
 			setupMock:          true,
+			rotationMock:       false,
 			expectedError:      true,
 			expectedErrorMsg:   "refresh token has expired",
 		},
@@ -91,6 +99,7 @@ func TestRefresh(t *testing.T) {
 			mockFindByToken:    nil,
 			mockFindByTokenErr: errors.New("database error"),
 			setupMock:          true,
+			rotationMock:       false,
 			expectedError:      true,
 		},
 	}
@@ -100,11 +109,9 @@ func TestRefresh(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			// Setup mock repositories
 			mockRepo := mock.NewMockUserRepository(ctrl)
 			mockRefreshTokenRepo := mock.NewMockRefreshTokenRepository(ctrl)
 
-			// Setup FindByToken expectation only when JWT is valid
 			if tt.setupMock {
 				mockRefreshTokenRepo.EXPECT().
 					FindByToken(gomock.Any(), tt.refreshToken).
@@ -112,13 +119,21 @@ func TestRefresh(t *testing.T) {
 					Times(1)
 			}
 
-			// Create service with same token config
+			if tt.rotationMock {
+				mockRefreshTokenRepo.EXPECT().
+					DeleteByToken(gomock.Any(), tt.refreshToken).
+					Return(nil).
+					Times(1)
+				mockRefreshTokenRepo.EXPECT().
+					Create(gomock.Any(), gomock.Any()).
+					Return(nil).
+					Times(1)
+			}
+
 			svc := NewUserService(mockRepo, mockRefreshTokenRepo, tokenSvc)
 
-			// Call refresh
 			result, err := svc.Refresh(context.Background(), tt.refreshToken)
 
-			// Assert results
 			if tt.expectedError {
 				if err == nil {
 					t.Errorf("expected error, got nil")
@@ -133,8 +148,11 @@ func TestRefresh(t *testing.T) {
 				if result == nil {
 					t.Errorf("expected non-nil result")
 				}
-				if result != nil && result.Message == "" {
-					t.Errorf("expected non-empty message (access token)")
+				if result != nil && result.AccessToken == "" {
+					t.Errorf("expected non-empty access token")
+				}
+				if result != nil && result.RefreshToken == "" {
+					t.Errorf("expected non-empty refresh token")
 				}
 			}
 		})
@@ -155,7 +173,6 @@ func TestRefreshContextCancellation(t *testing.T) {
 
 	svc := NewUserService(mockRepo, mockRefreshTokenRepo, tokenSvc)
 
-	// Create a cancelled context
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
@@ -220,11 +237,9 @@ func TestGetUser(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			// Setup mock repositories
 			mockRepo := mock.NewMockUserRepository(ctrl)
 			mockRefreshTokenRepo := mock.NewMockRefreshTokenRepository(ctrl)
 
-			// Setup FindByID expectation only if valid UUID
 			if _, err := uuid.Parse(tt.userIDString); err == nil {
 				mockRepo.EXPECT().
 					FindByID(gomock.Any(), gomock.Any()).
@@ -232,20 +247,16 @@ func TestGetUser(t *testing.T) {
 					Times(1)
 			}
 
-			// Setup token service
 			tokenConfig := token.TokenConfig{
 				AccessTokenSecret:  "test-access-secret",
 				RefreshTokenSecret: "test-refresh-secret",
 			}
 			tokenSvc := token.NewTokenService(tokenConfig)
 
-			// Create service
 			svc := NewUserService(mockRepo, mockRefreshTokenRepo, tokenSvc)
 
-			// Call getuser
 			result, err := svc.GetUser(context.Background(), tt.userIDString)
 
-			// Assert results
 			if tt.expectedError {
 				if err == nil {
 					t.Errorf("expected error, got nil")
@@ -279,7 +290,6 @@ func TestGetUserContextCancellation(t *testing.T) {
 
 	svc := NewUserService(mockRepo, mockRefreshTokenRepo, tokenSvc)
 
-	// Create a cancelled context
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 

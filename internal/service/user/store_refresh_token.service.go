@@ -6,24 +6,17 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/entity"
+	"github.com/ferriyusra/movie-service/internal/model/entity"
 )
 
-// StoreRefreshToken persists a refresh token in the database
-func (s *userService) StoreRefreshToken(ctx context.Context, userID uuid.UUID, tokenStr string, expiresAt time.Time) error {
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	default:
-	}
-
+// storeRefreshToken persists a refresh token in the database.
+func (s *userService) storeRefreshToken(ctx context.Context, userID uuid.UUID, tokenStr string) error {
 	token := entity.RefreshTokenEntity{
 		ID:        uuid.New(),
 		UserID:    userID,
 		Token:     tokenStr,
-		ExpiresAt: expiresAt,
+		ExpiresAt: time.Now().Add(s.tokenService.RefreshTokenExpiry()),
 	}
-
 	if err := s.refreshTokenRepository.Create(ctx, token); err != nil {
 		return fmt.Errorf("storing refresh token: %w", err)
 	}

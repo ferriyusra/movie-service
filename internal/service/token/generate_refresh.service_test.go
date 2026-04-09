@@ -149,7 +149,7 @@ func TestGenerateRefreshTokenIssuer(t *testing.T) {
 		return []byte("refresh-secret"), nil
 	})
 
-	if claims.Issuer != "go-vite-react" {
-		t.Errorf("expected issuer 'go-vite-react', got %s", claims.Issuer)
+	if claims.Issuer != "movie-service" {
+		t.Errorf("expected issuer 'movie-service', got %s", claims.Issuer)
 	}
 }

@@ -21,7 +21,6 @@ type Config struct {
 type AuthConfig struct {
 	JWTAccessSecret  string
 	JWTRefreshSecret string
-	CSRFSecret       string
 	DevMode          bool
 	AllowedOrigins   []string
 }
@@ -79,7 +78,6 @@ func NewConfig() *Config {
 		Auth: AuthConfig{
 			JWTAccessSecret:  os.Getenv("JWT_ACCESS_SECRET"),
 			JWTRefreshSecret: os.Getenv("JWT_REFRESH_SECRET"),
-			CSRFSecret:       os.Getenv("CSRF_SECRET"),
 			DevMode:          getEnvBool("DEV_MODE", false),
 			AllowedOrigins:   parseCSVEnv("ALLOWED_ORIGINS", "http://localhost:5173"),
 		},

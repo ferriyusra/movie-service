@@ -132,7 +132,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/ferriyusra/clean-arch-go-gin/internal/repository/mock"
+	"github.com/ferriyusra/movie-service/internal/repository/mock"
 )
 
 func TestGetCounter(t *testing.T) {
@@ -207,7 +207,7 @@ package counter
 import (
 	"context"
 
-	"github.com/ferriyusra/clean-arch-go-gin/internal/model/response"
+	"github.com/ferriyusra/movie-service/internal/model/response"
 )
 
 func (s *counterService) GetCounter(ctx context.Context) (*response.GetCounter, error) {

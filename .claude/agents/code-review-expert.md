@@ -23,7 +23,6 @@ This is a monolith app with the following layering:
 - `internal/model/response/` — API response DTOs (entities never exposed to HTTP)
 - `internal/di/container.go` — Dependency injection wiring
 - `internal/platform/` — Config and database initialization
-- `embedder/embedder.go` — Frontend serving (dev: Vite proxy, prod: embedded assets)
 
 **Frontend (React + TypeScript + Vite + Tailwind CSS):**
 - `frontend/src/api/` — API client modules (must import types, never define them)
@@ -67,7 +66,6 @@ Your primary responsibility is to review recently written or modified code with 
    - Validate frontend-backend API contract consistency (request/response types match)
    - Check configuration management via environment variables (`internal/platform/config.go`)
    - Assess database query efficiency with GORM
-   - Review embedder behavior for dev vs prod mode
 
 When reviewing code:
 - Focus on the most recently written or modified code unless explicitly asked to review the entire codebase
