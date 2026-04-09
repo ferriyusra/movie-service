@@ -126,10 +126,10 @@ func (h *MovieHandler) List(c *gin.Context) {
 		Limit: limit,
 	}
 
-	if genreIDStr := c.Query("genre_id"); genreIDStr != "" {
+	if genreIDStr := c.Query("genreId"); genreIDStr != "" {
 		genreID, err := uuid.Parse(genreIDStr)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, response.Err("Invalid genre_id"))
+			c.JSON(http.StatusBadRequest, response.Err("Invalid genreId"))
 			return
 		}
 		filters.GenreID = &genreID

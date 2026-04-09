@@ -84,5 +84,6 @@ func (s *userService) GetUser(ctx context.Context, userID string) (*response.Get
 		ID:    user.ID,
 		Email: user.Email,
 		Name:  user.Name,
+		Role:  user.Role,
 	}, nil
 }

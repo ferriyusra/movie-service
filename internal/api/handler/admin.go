@@ -35,19 +35,19 @@ func (h *AdminHandler) ListReservations(c *gin.Context) {
 
 	filters := interfaces.ReservationFilters{
 		Status:   c.Query("status"),
-		DateFrom: c.Query("date_from"),
-		DateTo:   c.Query("date_to"),
+		DateFrom: c.Query("dateFrom"),
+		DateTo:   c.Query("dateTo"),
 		Page:     page,
 		Limit:    limit,
 	}
 
-	if userIDStr := c.Query("user_id"); userIDStr != "" {
+	if userIDStr := c.Query("userId"); userIDStr != "" {
 		id, err := uuid.Parse(userIDStr)
 		if err == nil {
 			filters.UserID = &id
 		}
 	}
-	if showtimeIDStr := c.Query("showtime_id"); showtimeIDStr != "" {
+	if showtimeIDStr := c.Query("showtimeId"); showtimeIDStr != "" {
 		id, err := uuid.Parse(showtimeIDStr)
 		if err == nil {
 			filters.ShowtimeID = &id

@@ -5,7 +5,7 @@ type CreateTheaterRequest struct {
 	Name        string `json:"name"`
 	Location    string `json:"location"`
 	Rows        int    `json:"rows"`
-	SeatsPerRow int    `json:"seats_per_row"`
+	SeatsPerRow int    `json:"seatsPerRow"`
 }
 
 // UpdateTheaterRequest is the input for updating a theater

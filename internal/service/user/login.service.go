@@ -51,6 +51,7 @@ func (s *userService) Login(ctx context.Context, req *request.LoginRequest) (*re
 			ID:    user.ID,
 			Email: user.Email,
 			Name:  user.Name,
+			Role:  user.Role,
 		},
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,

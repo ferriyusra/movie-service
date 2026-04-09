@@ -104,6 +104,11 @@ func NewContainer(cfg *platform.Config) (*Container, error) {
 		return nil, fmt.Errorf("seeding admin account: %w", err)
 	}
 
+	// Seed sample movies, genres, and theaters
+	if err := platform.SeedMoviesAndTheaters(db); err != nil {
+		return nil, fmt.Errorf("seeding movies and theaters: %w", err)
+	}
+
 	// Initialize repositories
 	userRepository, err := userRepo.NewGORMUserRepository(db)
 	if err != nil {

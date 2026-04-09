@@ -9,12 +9,12 @@ import (
 // ReservationResponse represents a reservation in API responses
 type ReservationResponse struct {
 	ID               uuid.UUID      `json:"id"`
-	BookingReference string         `json:"booking_reference"`
-	ShowtimeID       uuid.UUID      `json:"showtime_id"`
+	BookingReference string         `json:"bookingReference"`
+	ShowtimeID       uuid.UUID      `json:"showtimeId"`
 	Status           string         `json:"status"`
-	TotalAmount      float64        `json:"total_amount"`
-	CancelledAt      *time.Time     `json:"cancelled_at,omitempty"`
-	CreatedAt        time.Time      `json:"created_at"`
+	TotalAmount      float64        `json:"totalAmount"`
+	CancelledAt      *time.Time     `json:"cancelledAt,omitempty"`
+	CreatedAt        time.Time      `json:"createdAt"`
 	Seats            []SeatResponse `json:"seats"`
 }
 

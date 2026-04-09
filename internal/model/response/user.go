@@ -7,6 +7,7 @@ type GetUser struct {
 	ID    uuid.UUID `json:"id"`
 	Email string    `json:"email"`
 	Name  string    `json:"name"`
+	Role  string    `json:"role"`
 }
 
 type LoginResponse struct {

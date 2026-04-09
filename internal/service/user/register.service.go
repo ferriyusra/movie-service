@@ -50,6 +50,7 @@ func (s *userService) Register(ctx context.Context, req *request.RegisterUserReq
 			ID:    userEntity.ID,
 			Email: userEntity.Email,
 			Name:  userEntity.Name,
+			Role:  userEntity.Role,
 		},
 	}, nil
 }
