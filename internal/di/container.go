@@ -14,12 +14,14 @@ import (
 	movieRepo "github.com/ferriyusra/movie-service/internal/repository/implementations/movie"
 	refreshTokenRepo "github.com/ferriyusra/movie-service/internal/repository/implementations/refresh_token"
 	seatRepo "github.com/ferriyusra/movie-service/internal/repository/implementations/seat"
+	showtimeRepo "github.com/ferriyusra/movie-service/internal/repository/implementations/showtime"
 	theaterRepo "github.com/ferriyusra/movie-service/internal/repository/implementations/theater"
 	userRepo "github.com/ferriyusra/movie-service/internal/repository/implementations/user"
 
 	genreSvc "github.com/ferriyusra/movie-service/internal/service/genre"
 	healthSvc "github.com/ferriyusra/movie-service/internal/service/health"
 	movieSvc "github.com/ferriyusra/movie-service/internal/service/movie"
+	showtimeSvc "github.com/ferriyusra/movie-service/internal/service/showtime"
 	theaterSvc "github.com/ferriyusra/movie-service/internal/service/theater"
 	tokenSvc "github.com/ferriyusra/movie-service/internal/service/token"
 	userSvc "github.com/ferriyusra/movie-service/internal/service/user"
@@ -34,21 +36,23 @@ type Container struct {
 
 // Services holds all service layer dependencies
 type Services struct {
-	Health  healthSvc.HealthService
-	User    userSvc.UserService
-	Token   tokenSvc.TokenService
-	Genre   genreSvc.GenreService
-	Movie   movieSvc.MovieService
-	Theater theaterSvc.TheaterService
+	Health   healthSvc.HealthService
+	User     userSvc.UserService
+	Token    tokenSvc.TokenService
+	Genre    genreSvc.GenreService
+	Movie    movieSvc.MovieService
+	Theater  theaterSvc.TheaterService
+	Showtime showtimeSvc.ShowtimeService
 }
 
 // Handlers holds all HTTP handler dependencies
 type Handlers struct {
-	Health  *handler.HealthHandler
-	User    *handler.UserHandler
-	Genre   *handler.GenreHandler
-	Movie   *handler.MovieHandler
-	Theater *handler.TheaterHandler
+	Health   *handler.HealthHandler
+	User     *handler.UserHandler
+	Genre    *handler.GenreHandler
+	Movie    *handler.MovieHandler
+	Theater  *handler.TheaterHandler
+	Showtime *handler.ShowtimeHandler
 }
 
 // NewContainer creates and initializes a new dependency container
@@ -105,6 +109,7 @@ func NewContainer(cfg *platform.Config) (*Container, error) {
 	movieRepository := movieRepo.NewGORMMovieRepository(db)
 	theaterRepository := theaterRepo.NewGORMTheaterRepository(db)
 	seatRepository := seatRepo.NewGORMSeatRepository(db)
+	showtimeRepository := showtimeRepo.NewGORMShowtimeRepository(db)
 
 	// Initialize token service
 	tokenConfig := tokenSvc.TokenConfig{
@@ -120,22 +125,24 @@ func NewContainer(cfg *platform.Config) (*Container, error) {
 		Health: healthSvc.NewHealthService(),
 		User:   userSvc.NewUserService(userRepository, refreshTokenRepository, tokenService),
 		Token:  tokenService,
-		Genre:   genreSvc.NewGenreService(genreRepository),
-		Movie:   movieSvc.NewMovieService(movieRepository, genreRepository),
-		Theater: theaterSvc.NewTheaterService(theaterRepository, seatRepository),
+		Genre:    genreSvc.NewGenreService(genreRepository),
+		Movie:    movieSvc.NewMovieService(movieRepository, genreRepository),
+		Theater:  theaterSvc.NewTheaterService(theaterRepository, seatRepository),
+		Showtime: showtimeSvc.NewShowtimeService(showtimeRepository, movieRepository, theaterRepository),
 	}
 
 	// Initialize handlers
 	handlers := &Handlers{
-		Health:  handler.NewHealthHandler(services.Health),
-		User:    handler.NewUserHandler(services.User),
-		Genre:   handler.NewGenreHandler(services.Genre),
-		Movie:   handler.NewMovieHandler(services.Movie),
-		Theater: handler.NewTheaterHandler(services.Theater),
+		Health:   handler.NewHealthHandler(services.Health),
+		User:     handler.NewUserHandler(services.User),
+		Genre:    handler.NewGenreHandler(services.Genre),
+		Movie:    handler.NewMovieHandler(services.Movie),
+		Theater:  handler.NewTheaterHandler(services.Theater),
+		Showtime: handler.NewShowtimeHandler(services.Showtime),
 	}
 
 	// Setup routes
-	api.SetupRoutes(r, handlers.User, handlers.Genre, handlers.Movie, handlers.Theater, services.Token)
+	api.SetupRoutes(r, handlers.User, handlers.Genre, handlers.Movie, handlers.Theater, handlers.Showtime, services.Token)
 	api.SetupHealthRoutes(r, handlers.Health)
 
 	return &Container{

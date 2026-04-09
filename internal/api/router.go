@@ -14,6 +14,7 @@ func SetupRoutes(
 	genreHandler *handler.GenreHandler,
 	movieHandler *handler.MovieHandler,
 	theaterHandler *handler.TheaterHandler,
+	showtimeHandler *handler.ShowtimeHandler,
 	tokenService token.TokenService,
 ) {
 	api := r.Group("/api")
@@ -29,6 +30,8 @@ func SetupRoutes(
 	api.GET("/movies/:id", movieHandler.Get)
 	api.GET("/theaters", theaterHandler.List)
 	api.GET("/theaters/:id", theaterHandler.Get)
+	api.GET("/showtimes", showtimeHandler.ListByDate)
+	api.GET("/showtimes/:id", showtimeHandler.Get)
 
 	// Protected routes (require authentication)
 	protected := api.Group("")
@@ -49,6 +52,9 @@ func SetupRoutes(
 	admin.DELETE("/movies/:id", movieHandler.Delete)
 	admin.POST("/theaters", theaterHandler.Create)
 	admin.PUT("/theaters/:id", theaterHandler.Update)
+	admin.POST("/showtimes", showtimeHandler.Create)
+	admin.PUT("/showtimes/:id", showtimeHandler.Update)
+	admin.DELETE("/showtimes/:id", showtimeHandler.Delete)
 }
 
 // SetupHealthRoutes configures health check routes
