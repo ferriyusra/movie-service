@@ -46,7 +46,9 @@ func (s *showtimeService) GetShowtime(ctx context.Context, id uuid.UUID) (*respo
 		ShowtimeResponse: response.ShowtimeResponse{
 			ID:             showtime.ID,
 			MovieID:        showtime.MovieID,
+			MovieTitle:     showtime.Movie.Title,
 			TheaterID:      showtime.TheaterID,
+			TheaterName:    showtime.Theater.Name,
 			StartTime:      showtime.StartTime,
 			EndTime:        showtime.EndTime,
 			Price:          showtime.Price,

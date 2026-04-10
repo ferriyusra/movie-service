@@ -73,11 +73,13 @@ func (s *showtimeService) UpdateShowtime(ctx context.Context, id uuid.UUID, req 
 	}
 
 	return &response.ShowtimeResponse{
-		ID:        existing.ID,
-		MovieID:   existing.MovieID,
-		TheaterID: existing.TheaterID,
-		StartTime: existing.StartTime,
-		EndTime:   existing.EndTime,
-		Price:     existing.Price,
+		ID:          existing.ID,
+		MovieID:     existing.MovieID,
+		MovieTitle:  movie.Title,
+		TheaterID:   existing.TheaterID,
+		TheaterName: theater.Name,
+		StartTime:   existing.StartTime,
+		EndTime:     existing.EndTime,
+		Price:       existing.Price,
 	}, nil
 }

@@ -38,7 +38,9 @@ func (s *showtimeService) ListShowtimesByDate(ctx context.Context, date time.Tim
 		result[i] = response.ShowtimeResponse{
 			ID:             st.ID,
 			MovieID:        st.MovieID,
+			MovieTitle:     st.Movie.Title,
 			TheaterID:      st.TheaterID,
+			TheaterName:    st.Theater.Name,
 			StartTime:      st.StartTime,
 			EndTime:        st.EndTime,
 			Price:          st.Price,

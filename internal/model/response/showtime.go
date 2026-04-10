@@ -10,7 +10,9 @@ import (
 type ShowtimeResponse struct {
 	ID             uuid.UUID `json:"id"`
 	MovieID        uuid.UUID `json:"movieId"`
+	MovieTitle     string    `json:"movieTitle"`
 	TheaterID      uuid.UUID `json:"theaterId"`
+	TheaterName    string    `json:"theaterName"`
 	StartTime      time.Time `json:"startTime"`
 	EndTime        time.Time `json:"endTime"`
 	Price          float64   `json:"price"`

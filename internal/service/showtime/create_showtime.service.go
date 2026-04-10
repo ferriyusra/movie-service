@@ -72,11 +72,13 @@ func (s *showtimeService) CreateShowtime(ctx context.Context, req *request.Creat
 	}
 
 	return &response.ShowtimeResponse{
-		ID:        *id,
-		MovieID:   showtime.MovieID,
-		TheaterID: showtime.TheaterID,
-		StartTime: showtime.StartTime,
-		EndTime:   showtime.EndTime,
-		Price:     showtime.Price,
+		ID:          *id,
+		MovieID:     showtime.MovieID,
+		MovieTitle:  movie.Title,
+		TheaterID:   showtime.TheaterID,
+		TheaterName: theater.Name,
+		StartTime:   showtime.StartTime,
+		EndTime:     showtime.EndTime,
+		Price:       showtime.Price,
 	}, nil
 }
