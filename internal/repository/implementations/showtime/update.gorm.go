@@ -12,5 +12,6 @@ func (r *GORMShowtimeRepository) Update(ctx context.Context, showtime entity.Sho
 		return ctx.Err()
 	default:
 	}
-	return r.db.WithContext(ctx).Save(&showtime).Error
+	// Use Omit to prevent GORM from upserting preloaded associations (Movie, Theater)
+	return r.db.WithContext(ctx).Omit("Movie", "Theater").Save(&showtime).Error
 }

@@ -14,5 +14,6 @@ func (r *GORMMovieRepository) Update(ctx context.Context, movie entity.MovieEnti
 	default:
 	}
 
-	return r.db.WithContext(ctx).Save(&movie).Error
+	// Omit Genres to prevent GORM from upserting the many2many association
+	return r.db.WithContext(ctx).Omit("Genres").Save(&movie).Error
 }

@@ -342,7 +342,8 @@ func seedShowtimes(db *gorm.DB) error {
 
 		startTime := baseDate.AddDate(0, 0, d.dayOffset).
 			Add(time.Duration(d.startHour-10)*time.Hour + time.Duration(d.startMinute)*time.Minute)
-		endTime := startTime.Add(time.Duration(movie.DurationMin) * time.Minute)
+		// end_time = start_time + duration + 15min cleaning buffer (matches CreateShowtime logic)
+		endTime := startTime.Add(time.Duration(movie.DurationMin)*time.Minute + 15*time.Minute)
 
 		showtime := entity.ShowtimeEntity{
 			ID:        uuid.New(),
