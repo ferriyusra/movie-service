@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -36,22 +37,23 @@ func (s *reservationService) CreateReservation(ctx context.Context, userID uuid.
 		return nil, errors.New("cannot reserve seats for a past showtime")
 	}
 
-	// Begin transaction
+	// Begin transaction — all seat checking and inserts happen atomically.
+	// The defer guarantees rollback on any error or panic, so individual
+	// rollback calls are not needed at each step.
 	tx := s.reservationRepository.BeginTx(ctx)
+	committed := false
 	defer func() {
-		if r := recover(); r != nil {
+		if !committed {
 			tx.Rollback()
 		}
 	}()
 
-	// Check seat availability within transaction
+	// Step 1: Lock and check seat availability (SELECT ... FOR UPDATE)
 	taken, err := s.reservationSeatRepository.CheckAvailabilityWithTx(ctx, tx, req.ShowtimeID, req.SeatIDs)
 	if err != nil {
-		tx.Rollback()
 		return nil, fmt.Errorf("checking availability: %w", err)
 	}
 	if len(taken) > 0 {
-		tx.Rollback()
 		labels := make([]string, len(taken))
 		for i, t := range taken {
 			labels[i] = t.Seat.Label
@@ -59,15 +61,14 @@ func (s *reservationService) CreateReservation(ctx context.Context, userID uuid.
 		return nil, fmt.Errorf("seats already reserved: %v", labels)
 	}
 
-	// Calculate total amount
+	// Step 2: Calculate total and generate booking reference
 	totalAmount := float64(len(req.SeatIDs)) * showtime.Price
-
-	// Generate booking reference: CINE-YYYYMMDD-XXXXX
 	bookingRef := fmt.Sprintf("CINE-%s-%s",
 		time.Now().Format("20060102"),
 		uuid.New().String()[:5],
 	)
 
+	// Step 3: Insert reservation record
 	reservation := entity.ReservationEntity{
 		ID:               uuid.New(),
 		BookingReference: bookingRef,
@@ -79,11 +80,10 @@ func (s *reservationService) CreateReservation(ctx context.Context, userID uuid.
 
 	id, err := s.reservationRepository.CreateWithTx(ctx, tx, reservation)
 	if err != nil {
-		tx.Rollback()
 		return nil, fmt.Errorf("creating reservation: %w", err)
 	}
 
-	// Create reservation seats
+	// Step 4: Insert reservation seats (unique index is the last line of defense)
 	reservationSeats := make([]entity.ReservationSeatEntity, len(req.SeatIDs))
 	for i, seatID := range req.SeatIDs {
 		reservationSeats[i] = entity.ReservationSeatEntity{
@@ -95,13 +95,18 @@ func (s *reservationService) CreateReservation(ctx context.Context, userID uuid.
 	}
 
 	if err := s.reservationSeatRepository.CreateBatchWithTx(ctx, tx, reservationSeats); err != nil {
-		tx.Rollback()
+		// Unique constraint violation = race condition caught by DB index
+		if strings.Contains(err.Error(), "UNIQUE constraint") || strings.Contains(err.Error(), "duplicate key") || strings.Contains(err.Error(), "idx_seat_showtime") {
+			return nil, errors.New("seats already reserved: another booking was placed just before yours")
+		}
 		return nil, fmt.Errorf("creating reservation seats: %w", err)
 	}
 
+	// Step 5: Commit — all inserts succeed or none do
 	if err := tx.Commit().Error; err != nil {
 		return nil, fmt.Errorf("committing transaction: %w", err)
 	}
+	committed = true
 
 	// Fetch seat details for response
 	seats, err := s.seatRepository.FindByTheaterID(ctx, showtime.TheaterID)
