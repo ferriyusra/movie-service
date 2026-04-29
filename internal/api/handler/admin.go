@@ -10,16 +10,18 @@ import (
 	"github.com/ferriyusra/movie-service/internal/model/response"
 	"github.com/ferriyusra/movie-service/internal/repository/interfaces"
 	adminSvc "github.com/ferriyusra/movie-service/internal/service/admin"
+	showtimeSvc "github.com/ferriyusra/movie-service/internal/service/showtime"
 )
 
 // AdminHandler handles admin-related HTTP requests
 type AdminHandler struct {
-	adminService adminSvc.AdminService
+	adminService    adminSvc.AdminService
+	showtimeService showtimeSvc.ShowtimeService
 }
 
 // NewAdminHandler creates a new instance of AdminHandler
-func NewAdminHandler(adminService adminSvc.AdminService) *AdminHandler {
-	return &AdminHandler{adminService: adminService}
+func NewAdminHandler(adminService adminSvc.AdminService, showtimeService showtimeSvc.ShowtimeService) *AdminHandler {
+	return &AdminHandler{adminService: adminService, showtimeService: showtimeService}
 }
 
 // ListReservations handles GET /api/admin/reservations
@@ -122,4 +124,36 @@ func (h *AdminHandler) ListUsers(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response.OK("Users retrieved", users))
+}
+
+// ListShowtimes handles GET /api/admin/showtimes
+func (h *AdminHandler) ListShowtimes(c *gin.Context) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 100 {
+		limit = 20
+	}
+
+	filters := interfaces.ShowtimeFilters{
+		MovieTitle: c.Query("movieTitle"),
+		DateFrom:   c.Query("dateFrom"),
+		DateTo:     c.Query("dateTo"),
+		Page:       page,
+		Limit:      limit,
+	}
+
+	showtimes, total, err := h.showtimeService.ListAllShowtimes(c.Request.Context(), filters)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.Err("Failed to fetch showtimes"))
+		return
+	}
+
+	c.JSON(http.StatusOK, response.OKWithMeta("Showtimes retrieved", showtimes, &response.Meta{
+		Page:  page,
+		Limit: limit,
+		Total: int(total),
+	}))
 }

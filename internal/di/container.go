@@ -157,7 +157,7 @@ func NewContainer(cfg *platform.Config) (*Container, error) {
 		Theater:     handler.NewTheaterHandler(services.Theater),
 		Showtime:    handler.NewShowtimeHandler(services.Showtime),
 		Reservation: handler.NewReservationHandler(services.Reservation),
-		Admin:       handler.NewAdminHandler(services.Admin),
+		Admin:       handler.NewAdminHandler(services.Admin, services.Showtime),
 	}
 
 	// Setup routes

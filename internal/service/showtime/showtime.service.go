@@ -17,6 +17,7 @@ type ShowtimeService interface {
 	DeleteShowtime(ctx context.Context, id uuid.UUID) error
 	GetShowtime(ctx context.Context, id uuid.UUID) (*response.ShowtimeDetailResponse, error)
 	ListShowtimesByDate(ctx context.Context, date time.Time) ([]response.ShowtimeResponse, error)
+	ListAllShowtimes(ctx context.Context, filters interfaces.ShowtimeFilters) ([]response.ShowtimeResponse, int64, error)
 	GetSeatMap(ctx context.Context, showtimeID uuid.UUID) ([]response.SeatMapResponse, error)
 }
 

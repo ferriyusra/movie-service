@@ -10,6 +10,7 @@ import (
 	time "time"
 
 	entity "github.com/ferriyusra/movie-service/internal/model/entity"
+	interfaces "github.com/ferriyusra/movie-service/internal/repository/interfaces"
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
 )
@@ -79,6 +80,22 @@ func (m *MockShowtimeRepository) Delete(ctx context.Context, id uuid.UUID) error
 func (mr *MockShowtimeRepositoryMockRecorder) Delete(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockShowtimeRepository)(nil).Delete), ctx, id)
+}
+
+// FindAll mocks base method.
+func (m *MockShowtimeRepository) FindAll(ctx context.Context, filters interfaces.ShowtimeFilters) ([]entity.ShowtimeEntity, int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindAll", ctx, filters)
+	ret0, _ := ret[0].([]entity.ShowtimeEntity)
+	ret1, _ := ret[1].(int64)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// FindAll indicates an expected call of FindAll.
+func (mr *MockShowtimeRepositoryMockRecorder) FindAll(ctx, filters interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockShowtimeRepository)(nil).FindAll), ctx, filters)
 }
 
 // FindByDate mocks base method.

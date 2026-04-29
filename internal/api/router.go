@@ -70,6 +70,7 @@ func SetupRoutes(
 	admin.DELETE("/admin/reservations/:id", adminHandler.CancelReservation)
 	admin.GET("/admin/users", adminHandler.ListUsers)
 	admin.PATCH("/admin/users/:id/promote", adminHandler.PromoteUser)
+	admin.GET("/admin/showtimes", adminHandler.ListShowtimes)
 }
 
 // SetupHealthRoutes configures health check routes
