@@ -1,0 +1,11 @@
+bin/
+*.db
+.env
+.git
+.gitignore
+coverage.out
+coverage.html
+tmp/
+.air.toml
+README.md
+CLAUDE.md

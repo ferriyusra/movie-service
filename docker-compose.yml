@@ -1,0 +1,62 @@
+services:
+  app:
+    image: ${REGISTRY_IMAGE:-movie-service}:${IMAGE_TAG:-latest}
+    build: .
+    container_name: movie-service
+    restart: always
+    ports:
+      - "${SERVER_PORT:-7071}:7071"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - movie-network
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: movie-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ferri}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
+      POSTGRES_DB: ${POSTGRES_DB:-movie-service}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ferri} -d ${POSTGRES_DB:-movie-service}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - movie-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: movie-redis
+    restart: always
+    command: redis-server ${REDIS_PASSWORD:+--requirepass $REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - movie-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  movie-network:
+    driver: bridge

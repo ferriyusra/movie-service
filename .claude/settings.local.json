@@ -8,7 +8,8 @@
       "Bash(./node_modules/.bin/tsc:*)",
       "Bash(yarn install:*)",
       "Bash(echo:*)",
-      "Bash(git commit -m ':*)"
+      "Bash(git commit -m ':*)",
+      "Bash(git push:*)"
     ]
   }
 }
