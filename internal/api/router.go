@@ -23,7 +23,7 @@ func SetupRoutes(
 
 	// Auth routes (public)
 	api.POST("/auth/register", userHandler.Register)
-	api.POST("/auth/login", userHandler.Login)
+	api.POST("/auth/login", middleware.RateLimit(10), userHandler.Login)
 	api.POST("/auth/refresh", userHandler.Refresh)
 
 	// Public routes
